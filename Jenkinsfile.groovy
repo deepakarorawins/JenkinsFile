@@ -7,19 +7,19 @@ properties([
     buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '20')),
     // Dropdown style parameters for which test configuration to use
     parameters([
-		choice(choices: ['ios-connected', 'brkiosbuild2', 'brkiosbuild3', 'brkiosbuild5', 'brkiosbuild8', 'brkiosbuild9', 'brkiosbuild10', 'brkiosbuild14', 'brkiosbuild15'], description: '', name: 'Machine'),
+		choice(choices: ['ios-connected', 'agent1', 'agent2', 'brkiosbuild2', 'brkiosbuild3', 'brkiosbuild5', 'brkiosbuild8', 'brkiosbuild9', 'brkiosbuild10', 'brkiosbuild14', 'brkiosbuild15'], description: '', name: 'Machine'),
+		booleanParam(defaultValue: true, description: '', name: 'Noida'),
 		choice(choices: ['', '1', '2', '3', '4', '5'], description: 'Number of phones you want to use to run the tests (default is blank, which means use all avaliable phones on the computer)', name: 'DeviceCount'),
 		string(defaultValue:'', description: 'Comma separated list of udids', name: 'Udid'),
         booleanParam(defaultValue: true, description: '', name: 'InstallApp'),
         choice(choices: ['0', '1', '2'], description: '', name: 'Retry'),
-        choice(choices: ['master', 'dee_branch', 'q_branch', 'dq_branch', 'reportportal'], description: '', name: 'Branch'),
+        choice(choices: ['master', 'dee_base', 'q_branch', 'dq_branch', 'reportportal'], description: '', name: 'Branch'),
         choice(choices: ['test','stage', 'stage_anz', 'stage_emea', 'prod'], description: '', name: 'Environment'),
         choice(choices: ['ios-devices', 'ios-simulator'], description: '', name: 'Platform'),
         choice(choices: ['Baseline', 'Settings', 'OKAUTO', 'Kits', 'Multiuser', 'Places', 'Inventory', 'Location_History', 'Auth0', 'Quality-Gates', 'Non-Baseline', 'BVT', 'BVT_ANZ', 'BVT_EMEA', 'Equipment', 'MX', 'Lights', 'Crimpers', 'Cutters', 'Wrenches', 'Drivers', 'Barcode', 'Tick', 'Tracker', 'Prod_Smoke_Test', 'Backward-Compatibility', 'barcode-security', 'tool-addition'], description: '', name: 'ToolCategory'),
 		choice(choices: ['', 'okauto@mailinator.com/1Keyautomation', 'nasanitytest@mailinator.com', 'places_onekey@mailinator.com/miP4cvma', 'pushpa@mailinator.com/Password1', 'pushpa1@mailinator.com/Password1', 'yogeshthakur@mailinator.com/miP4cvma', 'ythakur@mailinator.com/miP4cvma', 'eknoorsingh@mailinator.com/miP4cvma', 'esingh@mailinator.com/miP4cvma', '1keytestregression@mailinator.com/1Keyautomation', '1keystageregression@mailinator.com/1Keyautomation', '1keycrregression@mailinator.com/1Keyautomation', '1keyprodregression@mailinator.com/1Keyautomation', 'deemet@mailinator.com/miP4cvma', 'drivers@mailinator.com/1Keyautomation', 'lights@mailinator.com/1Keyautomation', 'crimpers@mailinator.com/1Keyautomation', 'wrenches@mailinator.com/1Keyautomation', 'cutters@mailinator.com/1Keyautomation', 'places@mailinator.com/1Keyautomation', 'geofence@mailinator.com/1Keyautomation', 'transfers@mailinator.com/1Keyautomation', 'settings@mailinator.com/miP4cvma'], description: 'Credentials that device 1 will use (default is blank, which means credentials specified for class in excel data will be used)', name: 'Credentials1'),
 		choice(choices: ['', 'okauto@mailinator.com/1Keyautomation', 'nasanitytest@mailinator.com', 'places_onekey@mailinator.com/miP4cvma', 'pushpa@mailinator.com/Password1', 'pushpa1@mailinator.com/Password1', 'yogeshthakur@mailinator.com/miP4cvma', 'ythakur@mailinator.com/miP4cvma', 'eknoorsingh@mailinator.com/miP4cvma', 'esingh@mailinator.com/miP4cvma', '1keytestregression@mailinator.com/1Keyautomation', '1keystageregression@mailinator.com/1Keyautomation', '1keycrregression@mailinator.com/1Keyautomation', '1keyprodregression@mailinator.com/1Keyautomation', 'deemet@mailinator.com/miP4cvma', 'drivers@mailinator.com/1Keyautomation', 'lights@mailinator.com/1Keyautomation', 'crimpers@mailinator.com/1Keyautomation', 'wrenches@mailinator.com/1Keyautomation', 'cutters@mailinator.com/1Keyautomation', 'places@mailinator.com/1Keyautomation', 'geofence@mailinator.com/1Keyautomation', 'transfers@mailinator.com/1Keyautomation', 'settings@mailinator.com/miP4cvma'], description: 'Credentials that device 2 will use (default is blank, which means credentials specified for class in excel data will be used)', name: 'Credentials2'),
-		choice(choices: ['', 'yes', 'no'], description: '', name: 'ReportPortal'),
-		string(defaultValue: 'deepak.arora@milwaukeetool.com, suchithra.basavaraju@milwaukeetool.com, ritika.wadhwa@milwaukeetool.com, divyam.mahajan@milwaukeetool.com, prashant.kumarManjhi@milwaukeetool.com', description: 'Comma (or whitespace) separated list of email recipients', name: 'EmailRecipients'),
+		string(defaultValue: 'deepak.arora@milwaukeetool.com, ritika.wadhwa@milwaukeetool.com, divyam.mahajan@milwaukeetool.com, jyoti.dwivedi@milwaukeetool.com, prashant.kumarManjhi@milwaukeetool.com', description: 'Comma (or whitespace) separated list of email recipients', name: 'EmailRecipients'),
 		string(defaultValue: '', description: 'This is app major version (default is blank, which means the latest version)', name: 'AppVersion'),
 		string(defaultValue: '', description: 'This is app short version (default is blank, which means the latest version)', name: 'AppBuild')])
 		
@@ -43,10 +43,17 @@ node("${Machine}") {
         mvnHome = tool 'M3'
     }
     stage('Build') {
+		//check for Noida Execution flag
+		def noidaFlag
+		if (params.Noida == "true" || params.Noida == true) {
+			noidaFlag = 'nda'
+		} else {
+			noidaFlag = ''
+		}
+
 		//check for install flag
 		def installFlag
 		if (params.InstallApp == "true" || params.InstallApp == true) {
-		//if (params.CustomData) {
 			installFlag = 'y'
 		}else {
 			installFlag = 'n'
@@ -86,8 +93,6 @@ node("${Machine}") {
 		  
 		  def version = getAppVersion(appName)
 		  
-		  def jenkinsUrl = "${BUILD_URL}".replace("build.milwaukeetool.com", "jenkins.milwaukeetool.com")
-		  
 		  //get all credentials for and combine them to a single comma seperated string
 		  def users = ""
 		  for(int i = 1; i <= 2; i++) {
@@ -102,14 +107,9 @@ node("${Machine}") {
 		  
 		//verify machine is running on Mac and not Windows machine
         if (isUnix()) {
-			withCredentials([usernamePassword(credentialsId: 'AWS_CREDENTIALS', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]){
-				if((params.ReportPortal=='yes') || (params.ReportPortal=='' && params.Branch=='master')){
-					sh "'${mvnHome}/bin/mvn' clean -Dtest=Runner test -DfailIfNoTests=false -Dsystem=jenkins -DplatformName=iOS -Dinstall=${installFlag} -Dregion=${region} -Denvironment=${environment} -Dudids=${params.Udid} -DdeviceCount=${params.DeviceCount} -DappVersion=${params.AppVersion} -DappBuild=${params.AppBuild} -Dretry=${params.Retry} -DtoolCategory=${params.ToolCategory} -Dcredentials=${users} -Drp.launch=${params.ToolCategory} '-Drp.attributes=environment:${environment};region:${region};version:${version};branch:${params.Branch} ' '-Drp.description=[Link to ${JOB_NAME} #${BUILD_NUMBER}](${jenkinsUrl})'"
-				}
-				else{
-					sh "'${mvnHome}/bin/mvn' clean -Dtest=Runner test -DfailIfNoTests=false -DplatformName=iOS -Dinstall=${installFlag} -Dregion=${region} -Denvironment=${environment} -Dudids=${params.Udid} -DdeviceCount=${params.DeviceCount} -DappVersion=${params.AppVersion} -DappBuild=${params.AppBuild} -Dretry=${params.Retry} -DtoolCategory=${params.ToolCategory} -Dcredentials=${users} "
-				}
-			}	   
+			//withCredentials([usernamePassword(credentialsId: 'AWS_CREDENTIALS', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]){
+				sh "'${mvnHome}/bin/mvn' clean -Dtest=Runner test -DfailIfNoTests=false -Dtooldetails=${noidaFlag} -Dsystem=jenkins -DplatformName=iOS -Dinstall=${installFlag} -Dregion=${region} -Denvironment=${environment} -Dudids=${params.Udid} -DdeviceCount=${params.DeviceCount} -DappVersion=${params.AppVersion} -DappBuild=${params.AppBuild} -Dretry=${params.Retry} -DtoolCategory=${params.ToolCategory} -Dcredentials=${users} -Drp.launch=${params.ToolCategory} '-Drp.attributes=environment:${environment};region:${region};version:${version}'"
+			//}	   
         } 
     }
     stage('Results') {
@@ -174,7 +174,8 @@ node("${Machine}") {
              env.executionEnv= eEnv
             // Send an email based on the status of the build
              if (isUnix()) {
-			sh "cp -R \"${WORKSPACE}/src/test/resources/email-templates/OKAuto-Email.template\" \"${JENKINS_HOME}\\email-templates\\OKAuto-Email.template\""
+//			sh "cp -R \"${WORKSPACE}/src/test/resources/email-templates/OKAuto-Email.template\" \"${JENKINS_HOME}/email-templates/OKAuto-Email.template\""
+				 sh "scp -r \"${WORKSPACE}/src/test/resources/email-templates/OKAuto-Email.template\" \"itc-onekey@iMac.local:${JENKINS_HOME}/email-templates/OKAuto-Email.template\""
 		} else {
 			//bat "copy /Y \"${WORKSPACE}\\src\\test\\resources\\email-templates\\OKAuto-Email.template\" \"${JENKINS_HOME}\\email-templates\\OKAuto-Email.template\""
 			bat "xcopy \"${WORKSPACE}\\src\\test\\resources\\email-templates\\OKAuto-Email.template\" \"${JENKINS_HOME}\\email-templates\\OKAuto-Email.template*\""
@@ -194,9 +195,9 @@ node("${Machine}") {
 					sh "curl https://build.milwaukeetool.com/nexus/repository/onekey-static/tests/zephyr-sync-cli/0.3/zephyr-sync-cli-0.3.jar --output zephyr-sync-cli-0.3.jar -u ${NEXUS_UP}"
 				}
 				withCredentials([string(credentialsId: 'tm4j-access-token', variable: 'TOKEN')]){
-                    withCredentials([usernamePassword(credentialsId: 'AWS_CREDENTIALS', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]){
+                    //withCredentials([usernamePassword(credentialsId: 'AWS_CREDENTIALS', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]){
 						sh "java -jar zephyr-sync-cli-0.3.jar --reportType=junit --projectKey=\"OKI\"  --reportPath=\"test-output/xml/\" --reportUrl=\"$nexusUrl/Extent.html\" --testCycle=\"${params.Environment}${params.ToolCategory}\" --tm4jAccessToken=\"${TOKEN}\""
-                    }
+                    //}
                 }
 			} catch (Exception e) {
 				echo e.message
@@ -209,9 +210,9 @@ node("${Machine}") {
 				}
         		
 				withCredentials([string(credentialsId: 'tm4j-access-token', variable: 'TOKEN')]){
-					withCredentials([usernamePassword(credentialsId: 'AWS_CREDENTIALS', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]){
+					//withCredentials([usernamePassword(credentialsId: 'AWS_CREDENTIALS', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]){
 						sh "java -jar zephyr-sync-cli-0.3.jar --reportType=junit --projectKey=\"OKI\"  --reportPath=\"test-output/xml/\" --reportUrl=\"$nexusUrl/Extent.html\" --testCycle=\"${params.Environment}\" --tm4jAccessToken=\"${TOKEN}\""
-					}
+					//}
 				}
 			} catch (Exception e) {
 				echo e.message
