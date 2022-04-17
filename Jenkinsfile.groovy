@@ -1,11 +1,11 @@
-@GrabResolver(name='artifactory', root='http://artifactory-oss.example.com/artifactory/my-repo-libs-release-local/', m2Compatible=true)
-@Grab('org.apache.commons:commons-math3:3.4.1')
-import org.apache.commons.math3.primes.Primes
+import groovy.sql.Sql
 
-def isPrime(int count) {
-	if (!Primes.isPrime(count)) {
-		error "${count} was not prime"
-	} else {
-		echo "${count} is a prime"
-	}
+def output = []
+
+def sql = Sql.newInstance('jdbc:sqlserver://DeeAutomation.mssql.somee.com:1433;databaseName=DeeAutomation;user=manhattan1902_SQLLogin_1;password=gg2yrvf7hc;encrypt=true;trustServerCertificate=true;')
+String sqlString = "SELECT ClassName FROM regression;"
+sql.eachRow(sqlString){ row ->
+	output.push(row[0])
 }
+
+return output
