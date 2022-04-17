@@ -1,16 +1,11 @@
-//@Grab(group = 'my.compay', module='my-module-name', version='1.0.0-SNAPSHOT')
-//import my.company.MyFancyClass
-@Grab('com.google.guava:guava:23.0')
-import com.google.common.base.Joiner
+@GrabResolver(name='artifactory', root='http://artifactory-oss.example.com/artifactory/my-repo-libs-release-local/', m2Compatible=true)
+@Grab('org.apache.commons:commons-math3:3.4.1')
+import org.apache.commons.math3.primes.Primes
 
-pipeline {
-	agent any
-	stages {
-		stage('Grape Test') {
-			steps {
-				echo "Joiner: ${Joiner.class}"
-				// echo "MyFancyClass: ${MyFancyClass.class}"
-			}
-		}
+def isPrime(int count) {
+	if (!Primes.isPrime(count)) {
+		error "${count} was not prime"
+	} else {
+		echo "${count} is a prime"
 	}
 }
